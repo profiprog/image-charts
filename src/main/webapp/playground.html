@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+	<title>Chart Playground</title>
+	<style type="text/css">
+		input#url, textarea#spec {
+			font-family: courier;
+			font-size: 12px;
+			padding:3px;
+			background-color:#EFEFEF;
+			margin-left:0;
+			overflow:auto;
+		}
+	</style>
+</head>
+<body>
+<p><strong>URL:</strong> <a id="link" href="chart?cht=bvg&chs=250x150&chd=s:Monkeys&chxt=x,y&chxs=0,ff0000,12,0,lt|1,0000ff,10,1,lt"><em>link to current state</em></a><br/>
+	<input type="text" name="url" id="url" size="140" value="" onkeydown="convert()" onkeyup="convert()"/>
+</p>
+<table class="columns" width="100%">
+	<tbody><tr>
+		<td width="21%" style="border:none; padding-left:0; padding-right: 10px; vertical-align:top;"><strong>Parameters:</strong><br>
+			<textarea name="spec" cols="50" rows="20" id="spec" onkeydown="update()" onkeyup="update()"></textarea>
+			<div>
+				<button onclick="update(); convert()" title="Click to format the text in the parameters box nicely and unescape URL-safe characters.">Reformat
+					Parameters</button>
+			</div></td>
+		<td width="79%" style="vertical-align:top; padding-bottom:20px"><strong>Generated
+			Chart:</strong><br>
+			<img style="border:1px black solid;" src="" id="chart" alt="Generated chart">
+			<div style="margin-top:5px">
+				<button id="toggleValidity">Show errors...</button>
+			</div>
+			<br>
+			<iframe id="debugFrame" style="width:100%; height:300px; display:none" src=""></iframe></td>
+	</tr>
+	</tbody>
+</table>
+<script type="text/javascript">
+	/*
+	 * Replaces the chart img src with the specified url.
+	 * If it includes the debugging parameter chof, it sends the url
+	 * to the iframe and makes it visible, to display the debugging message.
+	 */
+	function replaceImgUrl(url){
+		document.getElementById('chart').src = url;
+		document.getElementById('debugFrame').src=url.replace(/&chof=\w*/,'')+'&chof=validate';
+		let i = url.indexOf('?');
+		document.getElementById('link').href = location.pathname + url.substring(i);
+	}
+
+	/*
+	 * Updates the img source URL, and then
+	 * Unescapes the URL string, reformats it, and puts formatted text into
+	 * the formatted text box.
+	 */
+	function convert() {
+		let url = document.getElementById('url').value;
+		replaceImgUrl(url);
+		let match = url.match(/(.*?)\?(.*)/);
+		let query = match ? match[2] : url;
+		document.getElementById('spec').value = query
+			.replace(/&[a-z]+=&/g, '&')
+			.replace(/%20/g, '+')
+			.replace(/%22/g, '"')
+			.replace(/%27/g, "'")
+			.replace(/%2C/g, ',')
+			.replace(/%3A/g, ':')
+			.replace(/%3C/g, '<')
+			.replace(/%3E/g, '>')
+			.replace(/%5C/g, '\\')
+			.replace(/%7C/g, '|')
+			.replace(/ *& */g, '\n')
+			.replace(/ *\| */g, '\n    ');
+	}
+
+	/*
+	 * Updates the img source to reflect the current
+	 * text in the parameters box. Called when user types
+	 * in spec box.
+	 */
+	function update() {
+		var spec = document.getElementById('spec').value;
+
+		// Replace comments, newlines, spaces with
+		// appropriate URL elements.
+		spec = spec.replace(/#.*/g, '');
+		spec = spec.replace(/\n\n+/g, '\n');
+		spec = spec.replace(/^\s*/, '');
+		spec = spec.replace(/\s*$/, '');
+		spec = spec.replace(/\n +/g, '|');
+		spec = spec.replace(/ /g, '');
+		spec = spec.replace(/\n/g, '&');
+		var url = location.protocol  + '//' + location.host + '/chart?' + spec;
+		document.getElementById('url').value = url;
+		replaceImgUrl(url);
+	}
+
+	/*
+	 * Handle page setup when we navigate to the page
+	 * with a chart setup link.
+	 */
+	if (document.location.search) document.getElementById('link').href = 'chart' + document.location.search;
+	document.getElementById('url').value = document.getElementById('link').href;
+	convert();
+
+	document.addEventListener('DOMContentLoaded', function() {
+		document.getElementById('toggleValidity').addEventListener('click', function () {
+			let style = document.getElementById('debugFrame').style;
+			let is_hidden = style.display == "none";
+			this.innerText = is_hidden ? "Hide errors" : "Show errors";
+			style.display = is_hidden ? "inline" : "none";
+		});
+		// populateAutocomplete();
+	});
+</script>
+</body>
+</html>

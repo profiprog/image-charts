@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <display-name>charts</display-name>
+    <distributable/>
+
+
+	<servlet>
+		<servlet-name>charts</servlet-name>
+		<servlet-class>com.profiprog.charts.serlvet.ChartServlet</servlet-class>
+		<init-param>
+			<param-name>custom-font</param-name>
+			<param-value>/WEB-INF/font/Roboto-Regular.ttf</param-value>
+		</init-param>
+		<init-param>
+			<description>3days</description>
+			<param-name>header:Cache-Control</param-name>
+			<param-value>public, max-age=259200</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>charts</servlet-name>
+		<url-pattern>/chart</url-pattern>
+	</servlet-mapping>
+
+</web-app>
